@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { Asset, Audio, Font, Video } from 'expo';
@@ -43,7 +44,7 @@ export default class VideoPlayer extends React.Component {
       playbackInstancePosition: null,
       playbackInstanceDuration: null,
       shouldPlay: false,
-      isPlaying: true,
+      isPlaying: false,
       isBuffering: false,
       isLoading: true,
       fontLoaded: false,
@@ -53,10 +54,14 @@ export default class VideoPlayer extends React.Component {
       videoWidth: DEVICE_WIDTH,
       videoHeight: VIDEO_CONTAINER_HEIGHT,
       poster: false,
-      useNativeControls: true,
+      useNativeControls: false,
       fullscreen: false,
       throughEarpiece: false,
     };
+
+    setInterval( ()=>{
+      this._onPlayPausePressed(this.props.isPlaying);
+    }  , 100);
   }
 
   componentDidMount() {
@@ -109,7 +114,6 @@ export default class VideoPlayer extends React.Component {
         this.playbackInstance = sound;
       }
     this._updateScreenForLoading(false);
-    this._onPlayPausePressed();
   }catch(e){
       console.log(e);
   }
@@ -161,8 +165,18 @@ export default class VideoPlayer extends React.Component {
       if (status.error) {
         console.log(`FATAL PLAYER ERROR: ${status.error}`);
       }
-    }
+    }    
   };
+
+    _onPlayPausePressed(requestPlayingStatus) {
+        if (this.playbackInstance != null) {
+          if (this.state.isPlaying && !requestPlayingStatus) {
+            this.playbackInstance.pauseAsync();
+          } else if(!this.state.isPlaying && requestPlayingStatus){
+            this.playbackInstance.playAsync();
+          }
+        }
+      }
 
 
   _onReadyForDisplay = event => {
@@ -179,105 +193,15 @@ export default class VideoPlayer extends React.Component {
       });
     }
   };
-
-  _onFullscreenUpdate = event => {
-    console.log(`FULLSCREEN UPDATE : ${JSON.stringify(event.fullscreenUpdate)}`);
-  };
-
-  _advanceIndex(forward) {
-    this.index = (this.index + (forward ? 1 : PLAYLIST.length - 1)) % PLAYLIST.length;
-  }
-
-  async _updatePlaybackInstanceForIndex(playing) {
-    this._updateScreenForLoading(true);
-
-    this.setState({
-      videoWidth: DEVICE_WIDTH,
-      videoHeight: VIDEO_CONTAINER_HEIGHT,
-    });
-
-    this._loadNewPlaybackInstance(playing);
-  }
-
-  _onPlayPausePressed = () => {
-    if (this.playbackInstance != null) {
-      if (this.state.isPlaying) {
-        this.playbackInstance.pauseAsync();
-      } else {
-        this.playbackInstance.playAsync();
-      }
-    }
-  };
-
- 
-
-  _trySetRate = async (rate, shouldCorrectPitch) => {
-    if (this.playbackInstance != null) {
-      try {
-        await this.playbackInstance.setRateAsync(rate, shouldCorrectPitch);
-      } catch (error) {
-        // Rate changing could not be performed, possibly because the client's Android API is too old.
-      }
-    }
-  };
-
-
-  _onPitchCorrectionPressed = async value => {
-    this._trySetRate(this.state.rate, !this.state.shouldCorrectPitch);
-  };
-
-  _onSeekSliderValueChange = value => {
-    if (this.playbackInstance != null && !this.isSeeking) {
-      this.isSeeking = true;
-      this.shouldPlayAtEndOfSeek = this.state.shouldPlay;
-      this.playbackInstance.pauseAsync();
-    }
-  };
-
-  _onSeekSliderSlidingComplete = async value => {
-    if (this.playbackInstance != null) {
-      this.isSeeking = false;
-      const seekPosition = value * this.state.playbackInstanceDuration;
-      if (this.shouldPlayAtEndOfSeek) {
-        this.playbackInstance.playFromPositionAsync(seekPosition);
-      } else {
-        this.playbackInstance.setPositionAsync(seekPosition);
-      }
-    }
-  };
-
-  _getSeekSliderPosition() {
-    if (
-      this.playbackInstance != null &&
-      this.state.playbackInstancePosition != null &&
-      this.state.playbackInstanceDuration != null
-    ) {
-      return this.state.playbackInstancePosition / this.state.playbackInstanceDuration;
-    }
-    return 0;
-  }
-
-  _getMMSSFromMillis(millis) {
-    const totalSeconds = millis / 1000;
-    const seconds = Math.floor(totalSeconds % 60);
-    const minutes = Math.floor(totalSeconds / 60);
-
-    const padWithZero = number => {
-      const string = number.toString();
-      if (number < 10) {
-        return '0' + string;
-      }
-      return string;
-    };
-    return padWithZero(minutes) + ':' + padWithZero(seconds);
-  }
-
   
-  
+  _changeVideoPosition = () =>{
+         this._onPlayPausePressed(!this.props.isPlaying);
+         this.props.callback(!this.props.isPlaying);
+  };
 
   render() {
     return (
-      <View style={styles.container}>
+      <TouchableOpacity style={styles.container} onPress={this._changeVideoPosition}>
           <Video
             ref={this._mountVideo}
             style={[
@@ -297,17 +221,19 @@ export default class VideoPlayer extends React.Component {
             onReadyForDisplay={this._onReadyForDisplay}
             useNativeControls={this.state.useNativeControls}
           />
-          </View>
+          </TouchableOpacity>
+
       );
   }
 }
 
 const styles = StyleSheet.create({
   emptyContainer: {
+
     backgroundColor: BACKGROUND_COLOR,
   },
   container: {
-    flex: 1,
+    flex: 10,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
