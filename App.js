@@ -104,14 +104,14 @@ export default class App extends Component {
   
   render() {
 
-    return (
-      <ScrollView contentContainerStyle={[styles.contentContainer, styles.scrolStyle]}>
-      {
-        this.state.array.map((data, key)=>{
-            return (<ContentSection input={data} key={key} key_value={key} movement={this.getMovement.bind(this)} callback={this.getResponse.bind(this)}> </ContentSection>);
-        })
-      }
-      </ScrollView>);
+    // return (
+      // <View contentContainerStyle={[styles.contentContainer, styles.scrolStyle]}>
+      // {
+      //   this.state.array.map((data, key)=>{
+            return (<ContentSection input={this.state.array[0]} key={0} key_value={0} movement={this.getMovement.bind(this)} callback={this.getResponse.bind(this)}> </ContentSection>);
+       // });
+      // }
+      // </View>);
     }
   }
 

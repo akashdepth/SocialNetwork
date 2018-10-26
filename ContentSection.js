@@ -19,45 +19,51 @@ export default class ContentSection extends Component {
 
 
   render() {
-    return (
-      <View style={styles.topContainer} onMoveShouldSetResponder={this._movementresponse}>
-      <View style={styles.header}>
-      <Image style={{width: 40, height: 40, borderRadius: 18}} source={{uri: this.props.input.userImage}}/>
-      <View style={styles.small_head}>
-          <Text style={styles.usernameStyle}>{this.props.input.username}</Text>
-          <Text style={styles.timeStyle}>{this.props.input.time}</Text>
-      </View>
-      </View>
 
-      <Text style={styles.headTextStyle}>{this.props.input.earth_about}</Text>
-      <View>
+    return (
          <VideoPlayer uri={this.props.input.uri} isVideo="false" isPlaying={this.props.input.isPlaying} callback={this.getResponse.bind(this)}></VideoPlayer>
-         <View style={styles.actionbar}>
-            <View style={styles.shareContainer}>
-              <View style={styles.infobar}>
-                <Image style={{width: 15, height: 15}} source={require('./assets/images/whatsapp.png')}/> 
-                <Text style={[styles.infoContainerFonts]}>{this.props.input.share}</Text>
-              </View>              
-              <Text style={[styles.actionContainerFonts]}>Share</Text>
-            </View>
-            <View style={styles.likeContainer}>
-              <View style={styles.infobar}>
-                <Image style={{width: 15, height: 15}} source={require('./assets/images/likeicon.png')}/> 
-                <Text style={[styles.infoContainerFonts]}>{this.props.input.like}</Text>
-              </View>
-                <Text style={[styles.actionContainerFonts]}>Like</Text>
-            </View>
-          <View style={styles.commentsContainer}>
-            <View style={styles.infobar}>
-               <Image style={{width: 15, height: 15, marginLeft: 5}} source={require('./assets/images/comment.png')}/> 
-               <Text style={[styles.infoContainerFonts]}>{this.props.input.comment}</Text>
-              </View>
-               <Text style={[styles.actionContainerFonts]}>Comment</Text>
-             </View>
-         </View>
-        </View>
-      </View>   
-    );
+
+      );
+
+    // return (
+      // <View style={styles.topContainer} onMoveShouldSetResponder={this._movementresponse}>
+      // <View style={styles.header}>
+      // <Image style={{width: 40, height: 40, borderRadius: 18}} source={{uri: this.props.input.userImage}}/>
+      // <View style={styles.small_head}>
+      //     <Text style={styles.usernameStyle}>{this.props.input.username}</Text>
+      //     <Text style={styles.timeStyle}>{this.props.input.time}</Text>
+      // </View>
+      // </View>
+
+      // <Text style={styles.headTextStyle}>{this.props.input.earth_about}</Text>
+      // <View>
+        //  <VideoPlayer uri={this.props.input.uri} isVideo="false" isPlaying={this.props.input.isPlaying} callback={this.getResponse.bind(this)}></VideoPlayer>
+        // //  <View style={styles.actionbar}>
+        //     <View style={styles.shareContainer}>
+        //       <View style={styles.infobar}>
+        //         <Image style={{width: 15, height: 15}} source={require('./assets/images/whatsapp.png')}/> 
+        //         <Text style={[styles.infoContainerFonts]}>{this.props.input.share}</Text>
+        //       </View>              
+        //       <Text style={[styles.actionContainerFonts]}>Share</Text>
+        //     </View>
+        //     <View style={styles.likeContainer}>
+        //       <View style={styles.infobar}>
+        //         <Image style={{width: 15, height: 15}} source={require('./assets/images/likeicon.png')}/> 
+        //         <Text style={[styles.infoContainerFonts]}>{this.props.input.like}</Text>
+        //       </View>
+        //         <Text style={[styles.actionContainerFonts]}>Like</Text>
+        //     </View>
+        //   <View style={styles.commentsContainer}>
+        //     <View style={styles.infobar}>
+        //        <Image style={{width: 15, height: 15, marginLeft: 5}} source={require('./assets/images/comment.png')}/> 
+        //        <Text style={[styles.infoContainerFonts]}>{this.props.input.comment}</Text>
+        //       </View>
+        //        <Text style={[styles.actionContainerFonts]}>Comment</Text>
+        //      </View>
+        //  </View>
+        // </View>
+      // </View>   
+    // );
   }
 }
 
