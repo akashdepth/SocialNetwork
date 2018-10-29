@@ -1,62 +1,94 @@
-import React, { Component } from 'react';
-import { Text, View, ScrollView, StyleSheet, Image} from 'react-native';
+import React, { Component,PureComponent} from 'react';
+import { Text, View, ScrollView, StyleSheet, Image,ActivityIndicator} from 'react-native';
 import VideoPlayer from './VideoPlayer.js';
 import Icon from "react-native-vector-icons/Ionicons";
+import BottomBar from './BottomBar.js';
 
-export default class ContentSection extends Component {
+export default class ContentSection extends PureComponent {
   
   constructor(props){
     super(props);
+    this.state={
+      isLoading: true,
+    };
   }
 
+
+ timeConverter(UNIX_timestamp){
+      var a = new Date(UNIX_timestamp * 1000);
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var year = a.getFullYear();
+      var month = months[a.getMonth()];
+      var date = a.getDate();
+      var hour = a.getHours();
+      var min = a.getMinutes();
+      var time = date + ' ' + month + ' ' + hour + ':' + min;
+  return time;
+}
   getResponse(response){
     this.props.callback(this.props.key_value,response);
   }
 
-  _movementresponse = ()=>{
-    this.props.movement(this.props.key_value);
-  };
 
+  componentDidMount(){
+    return fetch('http://192.168.0.53:8080/api/get_user/'+this.props.input.userId)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log(responseJson);
+        this.setState({
+           isLoading: false,
+           user_data: responseJson,
+           isFetching: false,
+        });
+      })
+      .catch((error) =>{
+        console.log("Got Network Error.");
+        console.error(error);
+      });
+  }
+
+  renderItem(){
+    console.log(this.props.input);
+		if(this.props.input.contentType=="video"){
+			return (<VideoPlayer uri={this.props.input.uri} isVideo="false" isPlaying={this.props.input.isPlaying} callback={this.getResponse.bind(this)}></VideoPlayer>);
+		}else{
+			return (<Image
+				 style={{width: 300, height: 150}}
+		                 source={{uri: this.props.input.lightWeightUrl}}
+			/>);
+		}
+ }
+
+ _renderHeader(){
+
+     if(this.state.isLoading){
+        return(
+          <View style={{flex: 1, padding: 20}}>
+            <ActivityIndicator/>
+          </View>
+        )
+      }
+
+   return(<View style={styles.header}>
+      <Image style={{width: 40, height: 40, borderRadius: 18}} source={{uri: this.state.user_data.lightWeightImage}}/>
+      <View style={styles.small_head}>
+          <Text style={styles.usernameStyle}>{this.state.user_data.name}</Text>
+          <Text style={styles.timeStyle}>{this.timeConverter(this.props.input.timestamp)}</Text>
+      </View>
+      </View>);
+
+ }
 
   render() {
     return (
-      <View style={styles.topContainer} onMoveShouldSetResponder={this._movementresponse}>
-      <View style={styles.header}>
-      <Image style={{width: 40, height: 40, borderRadius: 18}} source={{uri: this.props.input.userImage}}/>
-      <View style={styles.small_head}>
-          <Text style={styles.usernameStyle}>{this.props.input.username}</Text>
-          <Text style={styles.timeStyle}>{this.props.input.time}</Text>
-      </View>
-      </View>
-
-      <Text style={styles.headTextStyle}>{this.props.input.earth_about}</Text>
-      <View>
-         <VideoPlayer uri={this.props.input.uri} isVideo="false" isPlaying={this.props.input.isPlaying} callback={this.getResponse.bind(this)}></VideoPlayer>
-         <View style={styles.actionbar}>
-            <View style={styles.shareContainer}>
-              <View style={styles.infobar}>
-                <Image style={{width: 15, height: 15}} source={require('./assets/images/whatsapp.png')}/> 
-                <Text style={[styles.infoContainerFonts]}>{this.props.input.share}</Text>
-              </View>              
-              <Text style={[styles.actionContainerFonts]}>Share</Text>
-            </View>
-            <View style={styles.likeContainer}>
-              <View style={styles.infobar}>
-                <Image style={{width: 15, height: 15}} source={require('./assets/images/likeicon.png')}/> 
-                <Text style={[styles.infoContainerFonts]}>{this.props.input.like}</Text>
-              </View>
-                <Text style={[styles.actionContainerFonts]}>Like</Text>
-            </View>
-          <View style={styles.commentsContainer}>
-            <View style={styles.infobar}>
-               <Image style={{width: 15, height: 15, marginLeft: 5}} source={require('./assets/images/comment.png')}/> 
-               <Text style={[styles.infoContainerFonts]}>{this.props.input.comment}</Text>
-              </View>
-               <Text style={[styles.actionContainerFonts]}>Comment</Text>
-             </View>
-         </View>
+      <View style={styles.topContainer}>
+      {this._renderHeader()}
+      <Text style={styles.headTextStyle}>{this.props.input.about}</Text>
+        <View>
+          {this.renderItem()}
+          <BottomBar input={this.props.input}> </BottomBar>
         </View>
-      </View>   
+      </View>
     );
   }
 }
@@ -99,74 +131,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderRadius: 10
   },
-  
-  infobar: {
-        flex: 1,
-        flexDirection: "row",
-        flexWrap: "nowrap",
-        justifyContent: "flex-start",
-  },
-
- infoIcons: {
-  marginTop: 3,
-  marginLeft: 3,
-  width: 8,
-  height: 8
- },
-
- actionbar: {
-        flex: 1,
-        flexDirection: "row",
-        flexWrap: "nowrap",
-        justifyContent: "flex-end",
-        marginTop: 5,
-        marginBottom: 5
-
-  },
-
 
   contentContainer: {
     paddingVertical: 10
   },
-  likeContainer: {
-    flex: 1,
-    width: 50,
-    marginLeft: 19
-  },
-  shareContainer: {
-    width: 100, 
-    marginLeft: 10,
-  },
-  commentsContainer: {
-    flex: 1,
-    width: 50,
-    marginRight: 10,
-  },
-   likeInfoContainer: {
-    width: 100, 
-    marginLeft: 10,
-    flex: 1,
-    flexDirection: "row",
-  },
-  shareInfoContainer: {
-    width: 100, 
-    marginLeft: 10,
-    flex: 1,
-    flexDirection: "row",
-  },
-  commentsInfoContainer: {
-    width: 100, 
-    marginLeft: 20,
-    flex: 1,
-    flexDirection: "row",
-  },
-  infoContainerFonts: {
-    fontSize: 10,
-    color: '#A4A4A4',
-    fontWeight: 'bold',
-    flexWrap: "nowrap",
-    marginLeft: 3
-  },
+  
   actionContainerFonts: {
     fontSize: 10,
     color: 'gray',
