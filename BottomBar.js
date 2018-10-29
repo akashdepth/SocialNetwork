@@ -20,7 +20,6 @@ export default class BottomBar extends PureComponent{
     return fetch('http://192.168.0.53:8080/api/increase/'+which+'/'+what+'/'+this.props.input.id)
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
         this.setState({
           noOfShares:  responseJson.shares,
           noOfComment: responseJson.noOfComment,
@@ -39,7 +38,6 @@ export default class BottomBar extends PureComponent{
     }
 
     _handleLike(){
-      console.log(this.state);
       if(this.state.likeStatus){
           this.getApiData("like","del");
       }
@@ -49,10 +47,13 @@ export default class BottomBar extends PureComponent{
     }
 
     _handleComment(){
-          this.getApiData("comment","add");
+          // this.getApiData("comment","add");
+          navigator.route("DetailsScreen");
     }
 
     render(){
+      const { navigate } = this.props.navigation;
+
       return (
          <View style={styles.actionbar}>
             <TouchableOpacity style={styles.shareContainer} onPress={this._handleShare.bind(this)}>
@@ -69,7 +70,7 @@ export default class BottomBar extends PureComponent{
               </View>
                 <Text style={[styles.actionContainerFonts]}>Like</Text>
             </TouchableOpacity>
-          <TouchableOpacity style={styles.commentsContainer} onPress={this._handleComment.bind(this)}>
+          <TouchableOpacity style={styles.commentsContainer} onPress={() => navigate('CommentScreen', { contentId: this.props.input.id, userId: this.props.input.userId })}>
             <View style={styles.infobar}>
                <Image style={{width: 15, height: 15, marginLeft: 5}} source={require('./assets/images/comment.png')}/> 
                <Text style={[styles.infoContainerFonts]}>{this.state.noOfComment}</Text>

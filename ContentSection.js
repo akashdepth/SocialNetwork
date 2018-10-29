@@ -1,5 +1,5 @@
 import React, { Component,PureComponent} from 'react';
-import { Text, View, ScrollView, StyleSheet, Image,ActivityIndicator} from 'react-native';
+import { Text, View, TouchableOpacity,ImageBackground, StyleSheet, Image,ActivityIndicator} from 'react-native';
 import VideoPlayer from './VideoPlayer.js';
 import Icon from "react-native-vector-icons/Ionicons";
 import BottomBar from './BottomBar.js';
@@ -15,7 +15,7 @@ export default class ContentSection extends PureComponent {
 
 
  timeConverter(UNIX_timestamp){
-      var a = new Date(UNIX_timestamp * 1000);
+      var a = new Date(UNIX_timestamp);
       var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       var year = a.getFullYear();
       var month = months[a.getMonth()];
@@ -34,7 +34,6 @@ export default class ContentSection extends PureComponent {
     return fetch('http://192.168.0.53:8080/api/get_user/'+this.props.input.userId)
       .then((response) => response.json())
       .then((responseJson) => {
-        console.log(responseJson);
         this.setState({
            isLoading: false,
            user_data: responseJson,
@@ -48,14 +47,46 @@ export default class ContentSection extends PureComponent {
   }
 
   renderItem(){
-    console.log(this.props.input);
+   const { navigate } = this.props.navigation;
+
 		if(this.props.input.contentType=="video"){
-			return (<VideoPlayer uri={this.props.input.uri} isVideo="false" isPlaying={this.props.input.isPlaying} callback={this.getResponse.bind(this)}></VideoPlayer>);
+    return (
+          <TouchableOpacity
+            navigation={this.props.navigation}
+            onPress={() => {
+                console.log(this.props.input.url);
+                navigate('VideoViewer', { url: this.props.input.url});
+              }
+            }
+          >
+          <Image
+             style={[styles.container,{height: 150, marginLeft: 10, marginRight: 10}]}
+                         source={{uri: this.props.input.lightWeightUrl}}
+          />
+            <Image source={require('./assets/images/playicon.png')} style={{
+              width: 70,
+              height: 50,
+              position: "absolute",
+              marginLeft: 130,
+              borderRadius: 10,
+              marginTop: 50
+            }}/>
+          </TouchableOpacity>);
 		}else{
-			return (<Image
-				 style={{width: 300, height: 150}}
+			return (
+      <TouchableOpacity
+        navigation={this.props.navigation}
+        onPress={() => {
+            console.log(this.props.input.url);
+            navigate('ImageViewer', { url: this.props.input.url});
+          }
+        }
+      >
+      <Image
+				 style={{height: 150, marginLeft: 10, marginRight: 10}}
 		                 source={{uri: this.props.input.lightWeightUrl}}
-			/>);
+			/>
+      </TouchableOpacity>);
 		}
  }
 
@@ -86,7 +117,7 @@ export default class ContentSection extends PureComponent {
       <Text style={styles.headTextStyle}>{this.props.input.about}</Text>
         <View>
           {this.renderItem()}
-          <BottomBar input={this.props.input}> </BottomBar>
+          <BottomBar navigation={this.props.navigation} input={this.props.input}> </BottomBar>
         </View>
       </View>
     );
@@ -99,6 +130,14 @@ const styles = StyleSheet.create({
     color: '#A4A4A4',
     fontSize: 10
   },
+  container: {
+        flex: 1,
+        alignItems: 'center',
+            justifyContent: 'center',
+        backgroundColor: 'black',
+        justifyContent: 'center',
+        opacity: 0.5,
+    },
   header: {
     marginLeft: 10,
     marginRight: 10,

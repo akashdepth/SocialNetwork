@@ -208,9 +208,6 @@ export default class VideoPlayer extends React.Component {
       playbackState: PLAYBACK_STATES.LOADING
     };
 
-    setInterval( ()=>{
-      this._onPlayPausePressed(this.props.isPlaying);
-    }  , 100);
   }
 
   componentDidMount() {
