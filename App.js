@@ -5,9 +5,23 @@ import HomeScreen from './HomeScreen.js';
 import CommentScreen from './CommentScreen.js';
 import ImageViewer from './ImageViewer.js';
 import VideoViewer from './VideoViewer.js';
+import UploadHandler from './UploadHandler.js';
+import FileUploader from './FileUploader.js';
 
 const RootStack = createStackNavigator(
   {
+    FileUploader:{
+      screen: FileUploader,
+        navigationOptions: {
+          header: null,
+        }      
+    },
+    UploadHandler: {
+        screen: UploadHandler,
+        navigationOptions: {
+          header: null,
+        }
+    },
     Home: {
       screen: HomeScreen,
       navigationOptions: {

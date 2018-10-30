@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import { Text, View, FlatList, StyleSheet, Image, ActivityIndicator} from 'react-native';
+import { Text, View, FlatList, StyleSheet, Image, ActivityIndicator, TouchableOpacity} from 'react-native';
 import ContentSection from './ContentSection.js'
 import { createStackNavigator } from 'react-navigation';
+import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+
+//https://www.npmjs.com/package/react-native-swipe-gestures
 
 export default class HomeScreen extends Component {
   
@@ -9,6 +12,25 @@ export default class HomeScreen extends Component {
     return ''+index;
   };
 
+
+  onSwipeDown(gestureState) {
+    this.setState(
+      {
+        isVisible: true,
+      }
+      );
+    }
+  
+
+
+  onSwipeUp(gestureState) {
+    this.setState(
+      {
+        isVisible: false,
+      }
+      );
+    }
+  
 
    _renderItem = ({item}) => {
     return (<ContentSection navigation={this.props.navigation} input={item}> </ContentSection>);
@@ -44,6 +66,7 @@ export default class HomeScreen extends Component {
     super(props);
       this.state = {
       	isFetching: true,
+        isVisible: true, 
       };
 
   }
@@ -52,10 +75,46 @@ export default class HomeScreen extends Component {
      this.setState({ isFetching: true}, function() { this.getApiData() });
   }
 
+  _renderAdd(){
+       const { navigate } = this.props.navigation;
+
+      if(this.state.isVisible){
+        return (
+          <TouchableOpacity
+                    onPress={() => {
+                      navigate('UPloadHandler', { userId: 1});
+                    }
+                  }
+
+                  style={{
+                        position: "absolute",
+                        marginLeft: 300,
+                        marginTop: 620,
+                  }}
+                  >
+                  <Image source={require('./assets/images/plusButton.png')} 
+                    style={{
+                        width: 50,
+                        height: 50,
+                        borderRadius: 25,
+                        marginBottom: 10
+                  }}
+                />
+        </TouchableOpacity>
+          );
+      }
+  }
+
+
   render() {
+    
+
   	 return (
-      <View style={{
-        flex: 1,
+      <GestureRecognizer 
+            onSwipeLeft={(state) => this.onSwipeDown(state)}
+            onSwipeRight={(state) => this.onSwipeUp(state)}
+            style={{
+              flex: 1,
 
       }}>
       <FlatList
@@ -69,18 +128,8 @@ export default class HomeScreen extends Component {
             style={styles.scrolStyle}
 
       />
-      <Image source={require('./assets/images/plusButton.png')} 
-          style={{
-              width: 50,
-              height: 50,
-              position: "absolute",
-              marginLeft: 300,
-              marginTop: 620,
-              borderRadius: 25,
-              marginBottom: 10
-          }}
-        />
-      </View>
+      {this._renderAdd()}
+      </GestureRecognizer>
 
     );
     }
