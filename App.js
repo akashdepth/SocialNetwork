@@ -12,9 +12,9 @@ const RootStack = createStackNavigator(
   {
     FileUploader:{
       screen: FileUploader,
-        navigationOptions: {
+          navigationOptions: {
           header: null,
-        }      
+        }
     },
     UploadHandler: {
         screen: UploadHandler,
@@ -52,7 +52,16 @@ const RootStack = createStackNavigator(
 
   },
   {
-    headerMode: 'screen' 
+    initialRouteName: 'Home',
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: '#f4511e',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+        fontWeight: 'bold',
+      },
+    },
   }
 );
 

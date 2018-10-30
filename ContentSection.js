@@ -4,6 +4,8 @@ import VideoPlayer from './VideoPlayer.js';
 import Icon from "react-native-vector-icons/Ionicons";
 import BottomBar from './BottomBar.js';
 
+const IP_ADDRESS='http://192.168.43.132:8080';
+
 export default class ContentSection extends PureComponent {
   
   constructor(props){
@@ -31,7 +33,7 @@ export default class ContentSection extends PureComponent {
 
 
   componentDidMount(){
-    return fetch('http://192.168.0.53:8080/api/get_user/'+this.props.input.userId)
+    return fetch(IP_ADDRESS+'/api/get_user/'+this.props.input.userId)
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
@@ -55,13 +57,13 @@ export default class ContentSection extends PureComponent {
             navigation={this.props.navigation}
             onPress={() => {
                 console.log(this.props.input.url);
-                navigate('VideoViewer', { url: this.props.input.url});
+                navigate('VideoViewer', { url: IP_ADDRESS+'/api/downloadFile/'+this.props.input.url});
               }
             }
           >
           <Image
              style={[styles.container,{height: 150, marginLeft: 10, marginRight: 10}]}
-                         source={{uri: this.props.input.lightWeightUrl}}
+                         source={{uri: IP_ADDRESS+'/api/downloadFile/'+this.props.input.lightWeightUrl}}
           />
             <Image source={require('./assets/images/playicon.png')} style={{
               width: 70,
@@ -72,19 +74,19 @@ export default class ContentSection extends PureComponent {
               marginTop: 50
             }}/>
           </TouchableOpacity>);
-		}else{
+		}else if(this.props.input.contentType=="image"){
 			return (
       <TouchableOpacity
         navigation={this.props.navigation}
         onPress={() => {
             console.log(this.props.input.url);
-            navigate('ImageViewer', { url: this.props.input.url});
+            navigate('ImageViewer', { url: IP_ADDRESS+'/api/downloadFile/'+this.props.input.url});
           }
         }
       >
       <Image
 				 style={{height: 150, marginLeft: 10, marginRight: 10}}
-		                 source={{uri: this.props.input.lightWeightUrl}}
+		                 source={{uri: IP_ADDRESS+'/api/downloadFile/'+this.props.input.lightWeightUrl}}
 			/>
       </TouchableOpacity>);
 		}
@@ -117,7 +119,7 @@ export default class ContentSection extends PureComponent {
       <Text style={styles.headTextStyle}>{this.props.input.about}</Text>
         <View>
           {this.renderItem()}
-          <BottomBar navigation={this.props.navigation} input={this.props.input}> </BottomBar>
+          <BottomBar navigation={this.props.navigation} input={this.props.input} userId={this.props.userId }> </BottomBar>
         </View>
       </View>
     );

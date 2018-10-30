@@ -3,6 +3,8 @@ import { Text, View, TouchableOpacity,FlatList, StyleSheet,Keyboard, Image, Acti
 import ContentSection from './ContentSection.js'
 import { createStackNavigator } from 'react-navigation';
 
+const IP_ADDRESS='http://192.168.43.132:8080';
+
 
 export default class CommentScreen extends Component {
   
@@ -72,7 +74,7 @@ postData(url = ``, data = {}) {
         "contentSectionId": contentId
     };
    console.log(data);
-   this.postData('http://192.168.0.53:8080/api/add_comments', data);
+   this.postData(IP_ADDRESS+'/api/add_comments', data);
   }
 
 
@@ -80,8 +82,8 @@ postData(url = ``, data = {}) {
 
     const { navigation } = this.props;
     const contentId = navigation.getParam('contentId', '0');
-
-    return fetch('http://192.168.0.53:8080/api/get_comments/'+contentId)
+    console.log(contentId);
+    return fetch(IP_ADDRESS+'/api/get_comments/'+contentId)
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({

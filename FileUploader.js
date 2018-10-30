@@ -1,263 +1,392 @@
 'use strict';
-
-import React, { Component } from 'react';
-import {
-  AppRegistry,
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  NativeModules,
-  DeviceEventEmitter,
-  ActivityIndicator,
-  CameraRoll,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
-import { PermissionsAndroid } from 'react-native';
+ 
+import React, { Component,PureComponent} from 'react';
 import { ImagePicker } from 'expo';
+import { Text,Button,  View,TextInput, TouchableOpacity,ImageBackground, StyleSheet, Image,ActivityIndicator} from 'react-native';
+import { create } from 'apisauce'
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
+
+const IP_ADDRESS='http://192.168.43.132:8080';
+
+const api = create({
+    baseURL: IP_ADDRESS,
+  });
+
+// class LogoTitle extends React.Component {
+//   render() {
+//     return (
+//       <Text>
+//         Akash Chaudhary
+//       </Text>
+//     );
+//   }
+// }
 
 
-export default class FileUploader extends React.Component {
+export default class FileUploader extends Component {
 
-  constructor(props) {
-    super(props);
+  static navigationOptions = {
+    // headerTitle: <LogoTitle />,
+  };
 
-    this.state = {
-      uploading: false,
-      showUploadModal: false,
-      uploadProgress: 0,
-      uploadTotal: 0,
-      uploadWritten: 0,
-      uploadStatus: undefined,
-      cancelled: false,
-      images: [],
-    }
-  }
 
-  componentDidMount() {
-    this.RNUploader = NativeModules.RNUploader;
-    console.log(this.RNUploader);
-    DeviceEventEmitter.addListener('RNUploaderProgress', (data) => {
-      let bytesWritten = data.totalBytesWritten;
-      let bytesTotal   = data.totalBytesExpectedToWrite;
-      let progress     = data.progress;
-      this.setState({uploadProgress: progress, uploadTotal: bytesTotal, uploadWritten: bytesWritten});
+componentDidMount() {
+  this.props.navigation.setParams({
+      text: '',
+      uri: '',
+      extension: '',
+      height: '',
+      width: '',
+      uploading: true,
+      progress: 0,
+
     });
   }
 
-  _addImage = async () => {
+
+  constructor(props) {
+    super(props);
+    console.log(this.props);
+    const { navigation } = this.props;
+    const _userId = navigation.getParam('userId', '0');
+
+    this.state={
+      text: '',
+      uri: '',
+      extension: '',
+      height: '',
+      width: '',
+      uploading: false,
+      progress: 0,
+      fileName: '',
+      userId: _userId,
+    };
+  }
+
+
+_postData(){
+          const data = new FormData();
+          data.append('file', {
+                  uri: this.state.uri,
+                  type: 'image/jpeg',
+                  name: 'u-'+this.state.userId+'.' + this.state.extension
+          });
+        api.post('/api/upload', data, {
+              onUploadProgress: (e) => {
+                const progress = e.loaded / e.total;
+                console.log(progress);
+                this.setState({
+                  progress: progress*100,
+                  uploading: true,
+                });
+              }
+            })
+              .then((res) =>{
+                this.setState({
+                  uploading: false,
+                  fileName: res.data.fileName,
+                  lightFileName: res.data.lightFileName,
+                  size: res.data.size,
+                });
+                console.log(res.data);
+              });
+}
+
+
+_addContentSection(){
+
+  var contentType = 'image';
+  if(['mp4', 'mov', 'wmv', 'flv', 'avi'].indexOf(this.state.extension)>-1){
+    contentType = 'video';
+  }else if(this.state.fileName==''){
+    contentType = 'text';
+  }
+  var data = {
+              title: 'None',
+              userId: this.state.userId,
+              noOfShares: 0,
+              noOfLikes: 0,
+              noOfComment: 0,
+              language: 'English',
+              contentType: contentType,
+              url: this.state.fileName,
+              lightWeightUrl: this.state.lightFileName,
+              about: this.state.text,
+              likeStatus: false,
+
+
+    };
+    this.postData(IP_ADDRESS+'/api/add_content_section', data);
+    this.setState({
+      text: '',
+      uri: '',
+      extension: '',
+      height: '',
+      width: '',
+      uploading: true,
+      progress: 0,
+      lightFileName: '',
+      url: '',
+    });
+    alert("Successfully posted.");
+}
+
+
+postData(url = ``, data = {}) {
+    return fetch(url, {
+        method: "POST", 
+        mode: "cors", 
+        cache: "no-cache", 
+        credentials: "same-origin", 
+        headers: {
+            "Content-Type": "application/json; charset=utf-8",
+        },
+        redirect: "follow", 
+        referrer: "no-referrer", 
+        body: JSON.stringify(data), 
+    })
+    .then(response => response.json())
+    .then((responseJson => {
+      console.log(responseJson);
+    }))
+    .catch((error)=>{
+      console.log(error);
+    })
+    ;
+}
+
+ _addImage = async () => {
+
+    this.setState({
+      progress: 0,
+    });
 
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: false,
-      mediaTypes: "All",
+      mediaTypes: "Images",
     });
 
     var re = /(?:\.([^.]+))?$/;
     var ext = re.exec(result.uri)[1];   // "txt"
-    console.log(ext);
-    console.log(result.uri);
     if (!result.cancelled) {
       this.setState({ 
-        images: [result.uri], 
+        uri: result.uri, 
         height: result.height, 
         width: result.width,
         extension:  ext});
       }
+       this._postData();
 
   }
 
-  _closeUploadModal() {
-    this.setState({showUploadModal: false, uploadProgress: 0, uploadTotal: 0, uploadWritten: 0, images: [], cancelled: false, });
-  }
+ _addVideo = async () => {
 
-  _cancelUpload() {
-    this.RNUploader.cancel();
-    this.setState({uploading: false, cancelled: true});
-  }
-
-  _uploadImages() {
-    let files = this.state.images.map( (file) => {
-      return {
-        name: 'file',
-        filename: _generateUUID + '.png',
-        filepath: file.uri,
-        filetype: 'image/png',
-      }
+    this.setState({
+      progress: 0,
     });
 
-    let opts = {
-      url: 'http://192.168.43.132:8080/api/upload',
-      file: files,
-      params: {name: 'myfile.jpg'}
-    };
-
-    this.setState({ uploading: true, showUploadModal: true, });
-
-    this.RNUploader.upload(opts, (err, res) => {
-      if (err) {
-        console.log(err);
-        return;
-      }
-
-      let status = res.status;
-      let responseString = res.data;
-
-      console.log('Upload complete with status ' + status);
-      console.log(responseString);
-      this.setState({uploading: false, uploadStatus: status});
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: false,
+      mediaTypes: "Videos",
     });
 
-  }
-
-  uploadProgressModal() {
-    let uploadProgress;
-
-    if (this.state.cancelled) {
-      uploadProgress = (
-        <View style={{ margin: 5, alignItems: 'center', }}>
-          <Text style={{ marginBottom: 10, }}>
-            Upload Cancelled
-          </Text>
-          <TouchableOpacity style={ styles.button } onPress={ this._closeUploadModal.bind(this) }>
-            <Text>Close</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    } else if (!this.state.uploading && this.state.uploadStatus) {
-      uploadProgress = (
-        <View style={{ margin: 5, alignItems: 'center', }}>
-          <Text style={{ marginBottom: 10, }}>
-            Upload complete with status: { this.state.uploadStatus }
-          </Text>
-          <TouchableOpacity style={ styles.button } onPress={ this._closeUploadModal.bind(this) }>
-            <Text>{ this.state.uploading ? '' : 'Close' }</Text>
-          </TouchableOpacity>
-        </View>
-      );
-    } else if (this.state.uploading) {
-      uploadProgress = (
-        <View style={{ alignItems: 'center', }}>
-          <Text style={ styles.title }>Uploading { this.state.images.length } Image{ this.state.images.length == 1 ? '' : 's' }</Text>
-          <ActivityIndicator
-            animating={this.state.animating}
-            style={[styles.centering, {height: 80}]}
-            size="large" />
-          <Text>{ this.state.uploadProgress.toFixed(0) }%</Text>
-          <Text style={{ fontSize: 11, color: 'gray', marginTop: 5, }}>
-            { ( this.state.uploadWritten / 1024 ).toFixed(0) }/{ ( this.state.uploadTotal / 1024 ).toFixed(0) } KB
-          </Text>
-          <TouchableOpacity style={ [styles.button, {marginTop: 5}] } onPress={ this._cancelUpload.bind(this) }>
-            <Text>{ 'Cancel' }</Text>
-          </TouchableOpacity>
-        </View>
-      );
+    var re = /(?:\.([^.]+))?$/;
+    var ext = re.exec(result.uri)[1];   // "txt"
+    if (!result.cancelled && this.state.uri!=result.uri) {
+      this.setState({ 
+        uri: result.uri, 
+        height: result.height, 
+        width: result.width,
+        extension:  ext});
+      this._postData();
+    }else{
+      this.setState({ 
+        progress: 100,
+      });
     }
 
-    return uploadProgress;
   }
 
+
+
+   _renderImage(){
+            if(this.state.uri){
+               return (<Image source={{ uri: this.state.uri }} style={styles.imageStyle} />);
+              
+          }else{
+              return (<Image source={require('./assets/images/uploadicon.png')} style={styles.imageStyle}/>);
+          }
+    }
+
+
   render() {
+
+
     return (
-      <View style={styles.container}>
 
-        <Text style={styles.title}>
-          react-native-uploader example
-        </Text>
 
-        <Modal
-          onRequestClose={()=>{ console.log("Hello world");}}
-          animationType={'fade'}
-          transparent={false}
-          visible={this.state.showUploadModal}>
 
-          <View style={styles.modal}>
-            {this.uploadProgressModal()}
-          </View>
+    <View style={styles.contentContainer}>
 
-        </Modal>
+    <View style={{
+        marginRight: 10,
+        marginTop: 50,
+        marginLeft: 10,
+        marginBottom: 15,
+        borderRadius: 10,
+        backgroundColor: 'green'
+      }}>
+      <Button
+        onPress={() => {
+            if(this.state.text==''){
+                alert("Please write something..");
+            }
+            else if(this.state.uploading){
+              alert("Please wait file is uploading....");
+            }
+            else{
+              this._addContentSection();
+            }
+        }}
+        title="Post"
+        color="transparent"
+      />
+      </View>
 
-        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-          <TouchableOpacity style={styles.button} onPress={this._addImage.bind(this)}>
-            <Text>Add Image</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={this._uploadImages.bind(this)}>
-            <Text>Upload</Text>
-          </TouchableOpacity>
+        <View style={{
+            flex: 1,
+            marginLeft: 10,
+            marginRight: 10,
+            backgroundColor: 'white',
+            borderRadius: 25,
+            marginBottom: 10,
+        }}>
+       
+       <TextInput
+            style={{
+              textAlign: 'center',
+              top: 80,
+              fontSize: 30,
 
+            }}
+                underlineColorAndroid = "transparent"
+                placeholder = "What's in your mind?"
+                placeholderTextColor = "black"
+                onChangeText={(_text) => {
+                  this.setState({text: _text});
+              }}
+                value={this.state.text}
+      />
+      </View>
+
+    {this.state.uri != '' &&
+     <View style={{
+            flex: 1,
+            marginBottom: 65,
+            alignSelf: 'center'
+     }}>
+      <AnimatedCircularProgress
+        size={250}
+        width={3}
+        fill={this.state.progress}
+        tintColor="#00e0ff"
+        backgroundColor="#3d5875">
+        {
+          (fill) => (
+            <Image source={{uri: this.state.uri}} style={[{
+              backgroundColor: 'transparent',
+              position: 'absolute',
+              width: 241,
+              height: 241,
+              borderRadius: 120
+            }]}/>
+          )
+        }
+      </AnimatedCircularProgress>
+      </View>
+    }
+
+
+
+        <View style={styles.fotter}>
+            <TouchableOpacity style={styles.bottomBar}
+              onPress={this._addImage}
+            >
+              <Image source={require('./assets/images/imageicon.png')} style={styles.imageFotter}/>
+              <Text style={styles.textFotter}>Image</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.bottomBar}
+              onPress={this._addVideo}
+            >
+              <Image source={require('./assets/images/videoicon.png')} style={styles.imageFotter}/>
+              <Text style={styles.textFotter}>Video</Text>
+
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <View style={styles.bottomBar}>
+                  <Image source={require('./assets/images/cameraicon.png')} style={styles.imageFotter}/>
+                  <Text style={styles.textFotter}>Camera</Text>
+              </View>
+
+            </TouchableOpacity>
         </View>
-
-        <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap'}}>
-          {this.state.images.map((image) => {
-            return <Image key={_generateUUID()} source={{uri: image.uri}} style={styles.thumbnail} />
-          })}
-        </View>
-
       </View>
     );
   }
-
 }
 
-function _generateUUID() {
-    var d = new Date().getTime();
-    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-    return uuid;
-};
 
 
-var styles = StyleSheet.create({
-  container: {
+
+const styles = StyleSheet.create({
+  textFotter: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: 'gray'
+  },
+  imageFotter: {
+    width: 40, 
+    height: 40, 
+    borderRadius: 20
+  },
+  bottomBar: {
+                marginLeft: 10,
+                marginRight: 10,
+                marginTop: 10,
+                marginBottom: 10,
+  },
+  contentContainer: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
-    padding: 20,
-    paddingTop: 40,
+    flexDirection: 'column',
+    backgroundColor: 'gray'
   },
-  welcome: {
-    fontSize: 20,
+
+  fotter: {
+        position: 'absolute', left: 0, right: 0, bottom: 0,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        borderRadius: 10,
+        marginLeft: 10,
+        marginRight: 10,
+        marginTop: 10,
+  },
+  imageStyle: {
+    width: 300, height: 300,borderRadius: 25, alignSelf: 'center',
+  },
+  points: {
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 72,
+    left: 56,
+    width: 90,
     textAlign: 'center',
-    margin: 10,
+    color: '#7591af',
+    fontSize: 50,
+    fontWeight: "100"
   },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-  thumbnail: {
-    width: 73,
-    height: 73,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    margin: 5,
-  },
-  modal: {
-    margin: 50,
-    borderWidth: 1,
-    borderColor: '#DDD',
-    padding: 20,
-    borderRadius: 12,
-    backgroundColor: 'lightyellow',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    textAlign: 'center',
-    fontWeight: '500',
-    fontSize: 14,
-  },
-  button: {
-    borderWidth: 1,
-    borderColor: '#CCC',
-    borderRadius: 8,
-    padding: 10,
-    backgroundColor: '#EEE',
-    marginHorizontal: 5,
-  }
 });
 
-AppRegistry.registerComponent('UploadFromCameraRoll', () => UploadFromCameraRoll);
+

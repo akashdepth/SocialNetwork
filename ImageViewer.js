@@ -2,6 +2,7 @@ import React, { Component,PureComponent} from 'react';
 import {  View,StyleSheet, Dimensions,Image,ActivityIndicator} from 'react-native';
 
 
+const IP_ADDRESS='http://192.168.43.132:8080';
 
 export default class ImageViewer extends Component{
 
@@ -10,7 +11,7 @@ export default class ImageViewer extends Component{
 		this.state={
 			width: 100,
 			height: 100,
-			uri: 'https://1.img-dpreview.com/files/p/TS1200x900~sample_galleries/4465348876/2284269311.jpg'
+			url: 'https://1.img-dpreview.com/files/p/TS1200x900~sample_galleries/4465348876/2284269311.jpg'
 		};
 
 	}

@@ -1,6 +1,7 @@
 import React, {PureComponent} from 'react';
 import { Text, View, StyleSheet, Image,ActivityIndicator,TouchableOpacity} from 'react-native';
 
+const IP_ADDRESS='http://192.168.43.132:8080';
 
 
 export default class BottomBar extends PureComponent{
@@ -17,7 +18,7 @@ export default class BottomBar extends PureComponent{
 
 
   getApiData(which, what){
-    return fetch('http://192.168.0.53:8080/api/increase/'+which+'/'+what+'/'+this.props.input.id)
+    return fetch(IP_ADDRESS+'/api/increase/'+which+'/'+what+'/'+this.props.input.id)
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
@@ -54,6 +55,8 @@ export default class BottomBar extends PureComponent{
     render(){
       const { navigate } = this.props.navigation;
 
+        console.log(this.props.input);
+
       return (
          <View style={styles.actionbar}>
             <TouchableOpacity style={styles.shareContainer} onPress={this._handleShare.bind(this)}>
@@ -70,7 +73,7 @@ export default class BottomBar extends PureComponent{
               </View>
                 <Text style={[styles.actionContainerFonts]}>Like</Text>
             </TouchableOpacity>
-          <TouchableOpacity style={styles.commentsContainer} onPress={() => navigate('CommentScreen', { contentId: this.props.input.id, userId: this.props.input.userId })}>
+          <TouchableOpacity style={styles.commentsContainer} onPress={() => navigate('CommentScreen', { contentId: this.props.input.id, userId: this.props.userId })}>
             <View style={styles.infobar}>
                <Image style={{width: 15, height: 15, marginLeft: 5}} source={require('./assets/images/comment.png')}/> 
                <Text style={[styles.infoContainerFonts]}>{this.state.noOfComment}</Text>

@@ -5,6 +5,8 @@ import { createStackNavigator } from 'react-navigation';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
 
 //https://www.npmjs.com/package/react-native-swipe-gestures
+const IP_ADDRESS='http://192.168.43.132:8080';
+const USER_ID = 2;
 
 export default class HomeScreen extends Component {
   
@@ -33,7 +35,12 @@ export default class HomeScreen extends Component {
   
 
    _renderItem = ({item}) => {
-    return (<ContentSection navigation={this.props.navigation} input={item}> </ContentSection>);
+    console.log("phelel");
+    console.log(item);
+    var temp_item = item;
+    console.log("basdme");
+    console.log(item);
+    return (<ContentSection navigation={this.props.navigation} input={item} userId={USER_ID}> </ContentSection>);
   };
 
 
@@ -44,7 +51,7 @@ export default class HomeScreen extends Component {
 
 
   getApiData(){
-  	return fetch('http://192.168.0.53:8080/api/get_content_section/1')
+  	return fetch(IP_ADDRESS+'/api/get_content_section/1')
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
@@ -82,7 +89,7 @@ export default class HomeScreen extends Component {
         return (
           <TouchableOpacity
                     onPress={() => {
-                      navigate('UPloadHandler', { userId: 1});
+                      navigate('FileUploader', { userId: USER_ID});
                     }
                   }
 
