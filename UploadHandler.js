@@ -1,6 +1,9 @@
 import React from 'react';
 import { Button, Image, View, Text ,StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 import { ImagePicker } from 'expo';
+import * as consts from './Constants.js';
+IP_ADDRESS = consts.IP_ADDRESS;
+
 
 export default class UploadHandler extends React.Component {
 
@@ -17,7 +20,7 @@ export default class UploadHandler extends React.Component {
 
 
 	  _postPicture() {
-				const apiUrl = 'http://192.168.0.53:8080/api/upload';
+				const apiUrl = IP_ADDRESS+'/api/upload';
 				const uri = this.state.image;
 				const uriParts = uri.split('.');
 				const fileType = uriParts[uriParts.length - 1];

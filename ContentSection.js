@@ -4,7 +4,7 @@ import VideoPlayer from './VideoPlayer.js';
 import Icon from "react-native-vector-icons/Ionicons";
 import BottomBar from './BottomBar.js';
 
-const IP_ADDRESS='http://192.168.43.132:8080';
+const IP_ADDRESS='http://192.168.0.53:8080';
 
 export default class ContentSection extends PureComponent {
   
@@ -56,7 +56,6 @@ export default class ContentSection extends PureComponent {
           <TouchableOpacity
             navigation={this.props.navigation}
             onPress={() => {
-                console.log(this.props.input.url);
                 navigate('VideoViewer', { url: IP_ADDRESS+'/api/downloadFile/'+this.props.input.url});
               }
             }
@@ -79,7 +78,6 @@ export default class ContentSection extends PureComponent {
       <TouchableOpacity
         navigation={this.props.navigation}
         onPress={() => {
-            console.log(this.props.input.url);
             navigate('ImageViewer', { url: IP_ADDRESS+'/api/downloadFile/'+this.props.input.url});
           }
         }

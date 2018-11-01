@@ -6,7 +6,7 @@ import { Text,Button,  View,TextInput, TouchableOpacity,ImageBackground, StyleSh
 import { create } from 'apisauce'
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 
-const IP_ADDRESS='http://192.168.43.132:8080';
+const IP_ADDRESS='http://192.168.0.53:8080';
 
 const api = create({
     baseURL: IP_ADDRESS,

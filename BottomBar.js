@@ -1,7 +1,7 @@
 import React, {PureComponent} from 'react';
 import { Text, View, StyleSheet, Image,ActivityIndicator,TouchableOpacity} from 'react-native';
-
-const IP_ADDRESS='http://192.168.43.132:8080';
+import * as consts from './Constants.js';
+IP_ADDRESS = consts.IP_ADDRESS;
 
 
 export default class BottomBar extends PureComponent{
@@ -55,7 +55,6 @@ export default class BottomBar extends PureComponent{
     render(){
       const { navigate } = this.props.navigation;
 
-        console.log(this.props.input);
 
       return (
          <View style={styles.actionbar}>

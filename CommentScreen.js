@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Text, View, TouchableOpacity,FlatList, StyleSheet,Keyboard, Image, ActivityIndicator, TextInput} from 'react-native';
 import ContentSection from './ContentSection.js'
 import { createStackNavigator } from 'react-navigation';
-
-const IP_ADDRESS='http://192.168.43.132:8080';
+import * as consts from './Constants.js';
+IP_ADDRESS = consts.IP_ADDRESS;
 
 
 export default class CommentScreen extends Component {

@@ -7,9 +7,18 @@ import ImageViewer from './ImageViewer.js';
 import VideoViewer from './VideoViewer.js';
 import UploadHandler from './UploadHandler.js';
 import FileUploader from './FileUploader.js';
+import LoginScreen from './LoginScreen.js';
+import MainHome from './MainHome';
 
 const RootStack = createStackNavigator(
   {
+
+    MainHome: {
+      screen: MainHome,
+          navigationOptions: {
+          header: null,
+      }            
+    },
     LoginScreen:{
     screen: LoginScreen,
           navigationOptions: {
@@ -58,7 +67,7 @@ const RootStack = createStackNavigator(
 
   },
   {
-    initialRouteName: 'Home',
+    initialRouteName: 'MainHome',
     navigationOptions: {
       headerStyle: {
         backgroundColor: '#f4511e',

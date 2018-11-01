@@ -19,17 +19,12 @@ export default class VideoViewer extends Component{
 	componentDidMount() {
 		const { navigation } = this.props;
 		const uri_const = navigation.getParam('url', '');
-	    // Video.getSize(uri_const, (srcWidth, srcHeight) => {
 	      const maxHeight = Dimensions.get('window').height; 
 	      const maxWidth = Dimensions.get('window').width;
 
-	    //   const ratio = Math.min(maxWidth / srcWidth, maxHeight / srcHeight);
 	      this.setState({ width: maxWidth, height: maxHeight/2, url: uri_const });
-	    // }, error => {
-	    //   console.log('error:', error);
-	    // });
 
-	    console.log(this.state);
+  	    console.log(this.state);
 	  }
 	  render() {
 	        return (

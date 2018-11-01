@@ -1,8 +1,8 @@
 import React, { Component,PureComponent} from 'react';
 import {  View,StyleSheet, Dimensions,Image,ActivityIndicator} from 'react-native';
+import * as consts from './Constants.js';
+IP_ADDRESS = consts.IP_ADDRESS;
 
-
-const IP_ADDRESS='http://192.168.43.132:8080';
 
 export default class ImageViewer extends Component{
 

@@ -3,10 +3,11 @@ import { Text, View, FlatList, StyleSheet, Image, ActivityIndicator, TouchableOp
 import ContentSection from './ContentSection.js'
 import { createStackNavigator } from 'react-navigation';
 import GestureRecognizer, {swipeDirections} from 'react-native-swipe-gestures';
+import * as consts from './Constants.js';
+IP_ADDRESS = consts.IP_ADDRESS;
 
 //https://www.npmjs.com/package/react-native-swipe-gestures
-const IP_ADDRESS='http://192.168.43.132:8080';
-const USER_ID = 2;
+
 
 export default class HomeScreen extends Component {
   
@@ -35,12 +36,8 @@ export default class HomeScreen extends Component {
   
 
    _renderItem = ({item}) => {
-    console.log("phelel");
-    console.log(item);
     var temp_item = item;
-    console.log("basdme");
-    console.log(item);
-    return (<ContentSection navigation={this.props.navigation} input={item} userId={USER_ID}> </ContentSection>);
+    return (<ContentSection navigation={this.props.navigation} input={item} userId={this.props.userId}> </ContentSection>);
   };
 
 
@@ -71,6 +68,7 @@ export default class HomeScreen extends Component {
 
   constructor(props){
     super(props);
+    console.log(this.props.userId);
       this.state = {
       	isFetching: true,
         isVisible: true, 
@@ -89,7 +87,7 @@ export default class HomeScreen extends Component {
         return (
           <TouchableOpacity
                     onPress={() => {
-                      navigate('FileUploader', { userId: USER_ID});
+                      navigate('FileUploader', { userId: this.props.userId});
                     }
                   }
 
