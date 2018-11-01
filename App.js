@@ -10,6 +10,12 @@ import FileUploader from './FileUploader.js';
 
 const RootStack = createStackNavigator(
   {
+    LoginScreen:{
+    screen: LoginScreen,
+          navigationOptions: {
+          header: null,
+      }      
+    },
     FileUploader:{
       screen: FileUploader,
           navigationOptions: {
