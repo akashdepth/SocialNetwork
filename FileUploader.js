@@ -5,8 +5,7 @@ import { ImagePicker } from 'expo';
 import { Text,Button,  View,TextInput, TouchableOpacity,ImageBackground, StyleSheet, Image,ActivityIndicator} from 'react-native';
 import { create } from 'apisauce'
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-
-const IP_ADDRESS='http://192.168.0.53:8080';
+import {IP_ADDRESS} from './Constants.js';
 
 const api = create({
     baseURL: IP_ADDRESS,
@@ -65,6 +64,7 @@ componentDidMount() {
 
 
 _postData(){
+          console.log(IP_ADDRESS);
           const data = new FormData();
           data.append('file', {
                   uri: this.state.uri,
@@ -82,14 +82,19 @@ _postData(){
               }
             })
               .then((res) =>{
+                if(res.ok){
                 this.setState({
                   uploading: false,
                   fileName: res.data.fileName,
                   lightFileName: res.data.lightFileName,
                   size: res.data.size,
                 });
-                console.log(res.data);
+
+            }else{
+              alert("Please check your network!!!");
+            }
               });
+
 }
 
 

@@ -3,8 +3,7 @@ import { Text, View, TouchableOpacity,ImageBackground, StyleSheet, Image,Activit
 import VideoPlayer from './VideoPlayer.js';
 import Icon from "react-native-vector-icons/Ionicons";
 import BottomBar from './BottomBar.js';
-
-const IP_ADDRESS='http://192.168.0.53:8080';
+import {IP_ADDRESS} from './Constants.js';
 
 export default class ContentSection extends PureComponent {
   

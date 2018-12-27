@@ -68,6 +68,7 @@ export default class Login extends Component {
       if (/^\d{10}$/.test(this.state.mobile)) {
           return true;
       } else {
+           console.log(this.state.mobile);
           return false
       }
     }
